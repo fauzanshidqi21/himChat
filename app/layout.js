@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "himChat",
-  description: "himChat: Your AI language companion. Powered by OpenAI, it enhances your conversations, content creation, and more!",
+  description: "himChat: Your AI language companion. Develop by Fauzan Shidqi 2024, it enhances your conversations, content creation, and more!",
 };
 
 export default function RootLayout({ children }) {
