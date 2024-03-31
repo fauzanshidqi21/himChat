@@ -5,6 +5,9 @@ const links = [
     {href:'/chat', label:'chat'},
     {href:'/tours', label:'tours'},
     {href:'/tours/new-tour', label:'new tour'},
+    {href:'/summary', label:'summary'},
+    {href:'/paraprhase', label:'paraprhase'},
+    {href:'/about', label:'about'},
     {href:'/profile', label:'profile'},
 ]
 
