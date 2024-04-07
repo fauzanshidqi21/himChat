@@ -69,10 +69,10 @@ const HomePage = () => {
 
       <div className="absolute bottom-0 right-0 z-[10]">
         <Image
-          src="/horse.png"
-          alt="horse"
-          height={300}
-          width={300}
+          src="/logo-himamal.png"
+          alt="logo-himamal"
+          height={550}
+          width={350}
           className="absolute right-55 top-40"
         />
 
