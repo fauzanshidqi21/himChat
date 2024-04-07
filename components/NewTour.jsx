@@ -1,39 +1,54 @@
-'use client'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { 
-    getExistigTour, 
+'use client';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+    getExistingTour,
     generateTourResponse,
-    createNewTour 
-} from '../utils/actions'
-import React from 'react'
-import TourInfo from './TourInfo'
-import toast from 'react-hot-toast'
-
-const NewTour = () => {
-
+    createNewTour,
+} from '../utils/actions';
+import TourInfo from './TourInfo';
+import toast from 'react-hot-toast';
+import { useAuth } from '@clerk/nextjs';
+    const NewTour = () => {
+    const queryClient = useQueryClient();
+    const { userId } = useAuth();
     const {
         mutate,
         isPending,
-        data:tour
-    }   = useMutation({
-        mutationFn:async (destination) => {
-            const NewTour = await generateTourResponse(destination)
-            if (NewTour){
-                return NewTour
-            }
-            toast.error('No matching city found...')
-            return null
-        }
-    })
-    const handleSubmit = (e) =>{
-        e.preventDefault()
-        const formData = new FormData(e.currentTarget)
-        const destination = Object.fromEntries(formData.entries())
-        mutate(destination)
-    }
+        data: tour,
+        } = useMutation({
+        mutationFn: async (destination) => {
+        const existingTour = await getExistingTour(destination);
+        if (existingTour) return existingTour;
 
-    if(isPending){
-        return <span className='loading loading-lg'></span>
+        const currentTokens = await fetchUserTokensById(userId);
+
+        if (currentTokens < 300) {
+            toast.error('Token balance too low....');
+            return;
+        }
+
+        const newTour = await generateTourResponse(destination);
+        if (!newTour) {
+            toast.error('No matching city found...');
+            return null;
+        }
+
+        const response = await createNewTour(newTour.tour);
+        queryClient.invalidateQueries({ queryKey: ['tours'] });
+        const newTokens = await subtractTokens(userId, newTour.tokens);
+        toast.success(`${newTokens} tokens remaining...`);
+        return newTour.tour;
+        },
+    });
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const destination = Object.fromEntries(formData.entries());
+        mutate(destination);
+    };
+
+    if (isPending) {
+        return <span className='loading loading-lg'></span>;
     }
 
     return (
@@ -60,11 +75,8 @@ const NewTour = () => {
             </button>
             </div>
         </form>
-        <div className="mt-16">
-            {tour? <TourInfo tour={tour}/> : null}
-        </div>
+        <div className='mt-16'>{tour ? <TourInfo tour={tour} /> : null}</div>
         </>
-    )
-}
-
-export default NewTour
+    );
+};
+export default NewTour;
